@@ -1,0 +1,149 @@
+---
+title: "latency  calculator"
+author: "Rayan Rozi"
+date: "2022-11-02"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+```
+
+```{r}
+case1 = read.csv("case1.csv", header = TRUE)
+```
+
+```{r}
+bsizes = c("32","64","128")
+l1sizes = c("16K","32K")
+l1_lat = c(1,2)
+l2sizes = c("512K","1M","2M")
+l2_lat = c(8,12,16)
+policys = c("l","r","f")
+assocs = c("1","2","4")
+```
+
+```{r}
+
+```
+
+```{r}
+latency = data.frame(1:15)
+latency = subset(latency,select = -X1.15)
+for (bsize in bsizes) {
+  for (i in 1:2) {
+    for (j in 1:3) {
+      name = paste(bsize,l1sizes[i],l2sizes[j],sep = "_")
+      name = paste("X",name,sep = "")
+      latency[[name]] = (case1[[paste(name,"l1i","h",sep = "_")]]-case1[[paste(name,"l1i","m",sep = "_")]])*l1_lat[i]+(case1[[paste(name,"l1d","h",sep = "_")]]-case1[[paste(name,"l1d","m",sep = "_")]])*l1_lat[i]+case1[[paste(name,"l1i","m",sep = "_")]]*l2_lat[j]+case1[[paste(name,"l1d","m",sep = "_")]]*l2_lat[j]+case1[[paste(name,"l2","m",sep = "_")]]*100
+    }
+  }
+}
+write.csv(latency,"case1_latency.csv")
+```
+
+```{r}
+case2 = read.csv("case2.csv", header = TRUE)
+```
+
+```{r}
+latency = data.frame(1:15)
+latency = subset(latency,select = -X1.15)
+for (bsize in bsizes) {
+  for (i in 1:2) {
+    for (j in 1:3) {
+      for (policy in policys) {
+        
+      
+      name = paste(bsize,l1sizes[i],l2sizes[j],policy,sep = "_")
+      name = paste("X",name,sep = "")
+      latency[[name]] = (case2[[paste(name,"l1i","h",sep = "_")]]-case2[[paste(name,"l1i","m",sep = "_")]])*l1_lat[i]+(case2[[paste(name,"l1d","h",sep = "_")]]-case2[[paste(name,"l1d","m",sep = "_")]])*l1_lat[i]+case2[[paste(name,"l1i","m",sep = "_")]]*l2_lat[j]+case2[[paste(name,"l1d","m",sep = "_")]]*l2_lat[j]+case2[[paste(name,"l2","m",sep = "_")]]*100
+      }
+    }
+  }
+}
+write.csv(latency,"case2_latency.csv")
+```
+
+```{r}
+case3 = read.csv("case3.csv", header = TRUE)
+```
+
+```{r}
+latency = data.frame(1:15)
+latency = subset(latency,select = -X1.15)
+for (bsize in bsizes) {
+  for (i in 1:2) {
+    for (j in 1:3) {
+      for (assoc in assocs) {
+        
+      
+      name = paste(bsize,l1sizes[i],l2sizes[j],assoc,sep = "_")
+      name = paste("X",name,sep = "")
+      latency[[name]] = (case3[[paste(name,"l1i","h",sep = "_")]]-case3[[paste(name,"l1i","m",sep = "_")]])*l1_lat[i]+(case3[[paste(name,"l1d","h",sep = "_")]]-case3[[paste(name,"l1d","m",sep = "_")]])*l1_lat[i]+case3[[paste(name,"l1i","m",sep = "_")]]*l2_lat[j]+case3[[paste(name,"l1d","m",sep = "_")]]*l2_lat[j]+case3[[paste(name,"l2","m",sep = "_")]]*100
+      }
+    }
+  }
+}
+write.csv(latency,"case3_latency.csv")
+```
+
+```{r}
+latency = data.frame(1:15)
+latency = subset(latency,select = -X1.15)
+attach(case1)
+latency$X32_16K_512K = (X32_16K_512K_l1i_h-X32_16K_512K_l1i_m)*1+(X32_16K_512K_l1d_h-X32_16K_512K_l1d_m)*1+X32_16K_512K_l1i_m*8+X32_16K_512K_l1d_m*8+X32_16K_512K_l2_m*100
+detach(case1)
+latency
+```
+
+```{r}
+latency = data.frame(1:15)
+latency = subset(latency,select = -X1.15)
+name = "X32_16K_512K"
+latency[[name]] = (case1[[1]]-case1[[2]])*1+(case1[[3]]-case1[[4]])*1+case1[[2]]*8+case1[[4]]*8+case1[[6]]*100
+latency
+```
+
+```{r}
+latency = data.frame(1:15)
+latency = subset(latency,select = -X1.15)
+latency$tlb_8_16K_512K_b = case1$tlb_8_m*3
+latency$tlb_8_16K_1m_b = case1$tlb_8_m*3
+latency$tlb_8_16K_2m_b = case1$tlb_8_m*3
+latency$tlb_8_16K_512K_a = case1$tlb_8_m*3+case1$tlb_8_m*8*2+case1$tlb_8_m*100*1
+latency$tlb_8_16K_1m_a = case1$tlb_8_m*3+case1$tlb_8_m*12*2+case1$tlb_8_m*100*1
+latency$tlb_8_16K_2m_a = case1$tlb_8_m*3+case1$tlb_8_m*16*2+case1$tlb_8_m*100*1
+latency$tlb_8_16K_512K_w = case1$tlb_8_m*3+case1$tlb_8_m*8*3+case1$tlb_8_m*100*3
+latency$tlb_8_16K_1m_w = case1$tlb_8_m*3+case1$tlb_8_m*12*3+case1$tlb_8_m*100*3
+latency$tlb_8_16K_2m_w = case1$tlb_8_m*3+case1$tlb_8_m*16*3+case1$tlb_8_m*100*3
+latency$tlb_8_32K_512K_b = case1$tlb_8_m*6
+latency$tlb_8_32K_1m_b = case1$tlb_8_m*6
+latency$tlb_8_32K_2m_b = case1$tlb_8_m*6
+latency$tlb_8_32K_512K_a = case1$tlb_8_m*6+case1$tlb_8_m*8*2+case1$tlb_8_m*100*1
+latency$tlb_8_32K_1m_a = case1$tlb_8_m*6+case1$tlb_8_m*12*2+case1$tlb_8_m*100*1
+latency$tlb_8_32K_2m_a = case1$tlb_8_m*6+case1$tlb_8_m*16*2+case1$tlb_8_m*100*1
+latency$tlb_8_32K_512K_w = case1$tlb_8_m*6+case1$tlb_8_m*8*3+case1$tlb_8_m*100*3
+latency$tlb_8_32K_1m_w = case1$tlb_8_m*6+case1$tlb_8_m*12*3+case1$tlb_8_m*100*3
+latency$tlb_8_32K_2m_w = case1$tlb_8_m*6+case1$tlb_8_m*16*3+case1$tlb_8_m*100*3
+
+latency$tlb_16_16K_512K_b = case1$tlb_16_m*3
+latency$tlb_16_16K_1m_b = case1$tlb_16_m*3
+latency$tlb_16_16K_2m_b = case1$tlb_16_m*3
+latency$tlb_16_16K_512K_a = case1$tlb_16_m*3+case1$tlb_16_m*8*2+case1$tlb_16_m*100*1
+latency$tlb_16_16K_1m_a = case1$tlb_16_m*3+case1$tlb_16_m*12*2+case1$tlb_16_m*100*1
+latency$tlb_16_16K_2m_a = case1$tlb_16_m*3+case1$tlb_16_m*16*2+case1$tlb_16_m*100*1
+latency$tlb_16_16K_512K_w = case1$tlb_16_m*3+case1$tlb_16_m*8*3+case1$tlb_16_m*100*3
+latency$tlb_16_16K_1m_w = case1$tlb_16_m*3+case1$tlb_16_m*12*3+case1$tlb_16_m*100*3
+latency$tlb_16_16K_2m_w = case1$tlb_16_m*3+case1$tlb_16_m*16*3+case1$tlb_16_m*100*3
+latency$tlb_16_32K_512K_b = case1$tlb_16_m*6
+latency$tlb_16_32K_1m_b = case1$tlb_16_m*6
+latency$tlb_16_32K_2m_b = case1$tlb_16_m*6
+latency$tlb_16_32K_512K_a = case1$tlb_16_m*6+case1$tlb_16_m*8*2+case1$tlb_16_m*100*1
+latency$tlb_16_32K_1m_a = case1$tlb_16_m*6+case1$tlb_16_m*12*2+case1$tlb_16_m*100*1
+latency$tlb_16_32K_2m_a = case1$tlb_16_m*6+case1$tlb_16_m*16*2+case1$tlb_16_m*100*1
+latency$tlb_16_32K_512K_w = case1$tlb_16_m*6+case1$tlb_8_m*8*3+case1$tlb_8_m*100*3
+latency$tlb_16_32K_1m_w = case1$tlb_16_m*6+case1$tlb_16_m*12*3+case1$tlb_16_m*100*3
+latency$tlb_16_32K_2m_w = case1$tlb_16_m*6+case1$tlb_16_m*16*3+case1$tlb_16_m*100*3
+write.csv(latency,"tlb_latency.csv")
+```
